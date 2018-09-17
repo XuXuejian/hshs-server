@@ -2,7 +2,6 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
-const log4js = require('log4js')
 const session = require('express-session')
 const cors = require('cors')
 
@@ -27,22 +26,27 @@ global.RESULT_CODE = {
   "012": "用户不存在"
 }
 
-log4js.configure({
-  appenders: {
-    console: { type: 'console' },
-    file: { type: 'file', filename: 'web.log' }
-  },
-  categories: {
-    web: { appenders: ['file'], level: 'info' },
-    default: { appenders: ['console'], level: 'info' }
-  }
-})
-const logger = log4js.getLogger('web')
-logger.level = 'debug'
+console.log(process.env.NODE_ENV)
+if (process.env.NODE_ENV === 'production') {
+  const log4js = require('log4js')
+  log4js.configure({
+    appenders: {
+      console: { type: 'console' },
+      file: { type: 'file', filename: 'web.log' }
+    },
+    categories: {
+      web: { appenders: ['file'], level: 'info' },
+      default: { appenders: ['console'], level: 'info' }
+    }
+  })
+  const logger = log4js.getLogger('web')
+  logger.level = 'debug'
+}
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(session({
   secret: 'secret dog',

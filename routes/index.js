@@ -1,5 +1,6 @@
 const login = require('./login')
 const user = require('./user')
+const upload = require('./upload')
 
 function handleLoginSession(req, res, next) {
   console.log('handle session', req.session.user)
@@ -13,5 +14,5 @@ function handleLoginSession(req, res, next) {
 }
 
 module.exports = (app) => {
-  app.use('/api', login, handleLoginSession, user)
+  app.use('/api', login, user)
 }

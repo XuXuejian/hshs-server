@@ -1,8 +1,19 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
+const multer = require('multer')
 
 const User = require('../mongodb/models/user')
+
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename(req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  }
+})
+const upload = multer({storage})
 
 router.get('/user', (req, res, next) => {
   User.find().select('name age _id').exec().then(docs => {
@@ -13,11 +24,14 @@ router.get('/user', (req, res, next) => {
     })
   })
 })
-router.post('/user', (req, res, next) => {
+router.post('/user', upload.single('avator'), (req, res, next) => {
+  console.log('user')
+  console.log(req.file)
   console.log(req.body)
   const user = new User({
     _id: new mongoose.Types.ObjectId(),
-    ...req.body
+    ...req.body,
+    avator: `uploads/${req.file.filename}`
   })
   user.save((error, doc) => {
     if (error) {
@@ -25,12 +39,13 @@ router.post('/user', (req, res, next) => {
         error
       })
     } else {
-      res.status(200).json({
-        createTime: doc.createTime,
-        account: doc.account,
-        age: doc.age,
-        _id: doc._id
-      })
+      res.status(200).json(doc)
+      // res.status(200).json({
+      //   createTime: doc.createTime,
+      //   account: doc.account,
+      //   age: doc.age,
+      //   _id: doc._id
+      // })
     }
   })
 })

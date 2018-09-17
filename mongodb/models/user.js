@@ -19,6 +19,9 @@ const userSchema = mongoose.Schema({
   createTime: {
     type: Date,
     default: Date.now
+  },
+  avator: {
+    type: String
   }
 })
 
