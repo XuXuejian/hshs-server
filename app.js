@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
-const session = require('express-session')
+// const session = require('express-session')
 const cors = require('cors')
 
 require('./mongodb')
@@ -48,14 +48,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 app.use(express.static(path.join(__dirname, 'public')))
-app.use(session({
-  secret: 'secret dog',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 30
-  }
-}))
+// app.use(session({
+//   secret: 'secret dog',
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     maxAge: 1000 * 60 * 30
+//   }
+// }))
 
 // app.all('*', (req, res, next) => {
 //   console.log(req.session.user)
@@ -86,7 +86,8 @@ const corsOptions = {
   maxAge: 60,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   preflightContinue: true,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }
 app.use('/api', cors(corsOptions), (req, res, next) => {
   next()

@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const multer = require('multer')
+const bcrypt = require('bcrypt')
 
 const User = require('../mongodb/models/user')
 
@@ -25,27 +26,34 @@ router.get('/user', (req, res, next) => {
   })
 })
 router.post('/user', upload.single('avator'), (req, res, next) => {
-  console.log('user')
-  console.log(req.file)
-  console.log(req.body)
-  const user = new User({
-    _id: new mongoose.Types.ObjectId(),
-    ...req.body,
-    avator: `uploads/${req.file.filename}`
-  })
-  user.save((error, doc) => {
-    if (error) {
+  bcrypt.hash(req.body.password, 10, (err, hash) => {
+    if (err) {
       res.status(500).json({
-        error
+        error: err
       })
     } else {
-      res.status(200).json(doc)
-      // res.status(200).json({
-      //   createTime: doc.createTime,
-      //   account: doc.account,
-      //   age: doc.age,
-      //   _id: doc._id
-      // })
+      console.log(req.file)
+      const user = new User({
+        _id: new mongoose.Types.ObjectId(),
+        ...req.body,
+        avator: `uploads/${req.file.filename}`,
+        password: hash
+      })
+      user.save((error, doc) => {
+        if (error) {
+          res.status(500).json({
+            error
+          })
+        } else {
+          res.status(200).json(doc)
+          // res.status(200).json({
+          //   createTime: doc.createTime,
+          //   account: doc.account,
+          //   age: doc.age,
+          //   _id: doc._id
+          // })
+        }
+      })
     }
   })
 })

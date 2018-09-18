@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const User = require('../mongodb/models/user')
 
@@ -51,15 +53,27 @@ router.post('/login', (req, res) => {
         code: '102',
         message: global.RESULT_CODE['102']
       })
-    } else if (doc.password !== body.password) {
-      res.status(500).json({
-        message: '密码不正确'
-      })
     } else {
-      req.session.user = body.account
-      console.log('session ', body.account)
-      delete doc.password
-      res.status(200).json(doc)
+      bcrypt.compare(req.body.password, doc.password, (err, result) => {
+        if (!result) {
+          res.status(500).json({
+            message: '密码不正确'
+          })
+        } else {
+          const token = jwt.sign({
+            account: req.body.account,
+            userId: doc._id
+          }, 'secret', {expiresIn: '1h'})
+          req.session.user = body.account
+          res.status(200).json({
+            account: doc.account,
+            avator: doc.avator,
+            userId: doc._id,
+            createTime: doc.createTime,
+            token
+          })
+        }
+      })
     }
   })
 })

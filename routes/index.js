@@ -1,18 +1,32 @@
 const login = require('./login')
 const user = require('./user')
-const upload = require('./upload')
+const jwt = require('jsonwebtoken')
 
-function handleLoginSession(req, res, next) {
-  console.log('handle session', req.session.user)
-  if (!req.session.user) {
-    res.status(500).json({
-      errMsg: '用户未登录'
-    })
-  } else {
-    next()
-  }
+const handleAuth = (req, res, next) => {
+  jwt.verify(req.headers.authorization, 'secret', (err, decoded) => {
+    console.log(decoded)
+    if (err) {
+      res.status(401).json({
+        message: 'Auth failed'
+      })
+    } else {
+      req.userData = decoded
+      next()
+    }
+  })
+  // try {
+  //   console.log(req.headers)
+  //   const decode = jwt.verify(req.headers.authorization, 'secret')
+  //   console.log(decode)
+  //   req.userData = decode
+  //   next()
+  // } catch (err) {
+  //   res.status(401).json({
+  //     message: 'Auth failed'
+  //   })
+  // }
 }
 
 module.exports = (app) => {
-  app.use('/api', login, user)
+  app.use('/api', login, handleAuth, user)
 }
