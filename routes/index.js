@@ -14,17 +14,6 @@ const handleAuth = (req, res, next) => {
       next()
     }
   })
-  // try {
-  //   console.log(req.headers)
-  //   const decode = jwt.verify(req.headers.authorization, 'secret')
-  //   console.log(decode)
-  //   req.userData = decode
-  //   next()
-  // } catch (err) {
-  //   res.status(401).json({
-  //     message: 'Auth failed'
-  //   })
-  // }
 }
 
 module.exports = (app) => {
