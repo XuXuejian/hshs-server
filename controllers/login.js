@@ -15,34 +15,41 @@ exports.login_register = (req, res, next) => {
         message: '用户已存在'
       })
     } else {
-      bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-          res.status(500).json({
-            error: err
-          })
-        } else {
-          const user = new User({
-            _id: new mongoose.Types.ObjectId(),
-            ...req.body,
-            avator: `uploads/${req.file.filename}`,
-            password: hash
-          })
-          user.save((error, doc) => {
-            if (error) {
-              res.status(500).json({
-                error
-              })
-            } else {
-              res.status(200).json(doc)
-            }
-          })
-        }
-      })
+      const userTem = new User(body)
+      const {error} = userTem.joiValidate(body)
+      console.log(error)
+      if (error) {
+        console.log(error.details[0].message)
+        res.status(500).json({error: error.details[0].message})
+      } else {
+        bcrypt.hash(req.body.password, 10, (err, hash) => {
+          if (err) {
+            res.status(500).json({
+              error: err
+            })
+          } else {
+            const user = new User({
+              _id: new mongoose.Types.ObjectId(),
+              ...req.body,
+              password: hash
+            })
+            user.save((error, doc) => {
+              if (error) {
+                res.status(500).json({
+                  error
+                })
+              } else {
+                res.status(200).json(doc)
+              }
+            })
+          }
+        })
+      }
     }
   })
 }
 
-exports.login_register = (req, res) => {
+exports.login_login = (req, res) => {
   const body = req.body
   User.findOne({account: body.account}, (err, doc) => {
     if (err) {
