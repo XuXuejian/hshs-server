@@ -1,5 +1,6 @@
 const login = require('./login')
 const user = require('./user')
+const download = require('./download')
 const jwt = require('jsonwebtoken')
 
 const handleAuth = (req, res, next) => {
@@ -17,5 +18,5 @@ const handleAuth = (req, res, next) => {
 }
 
 module.exports = (app) => {
-  app.use('/api', login, handleAuth, user)
+  app.use('/api', login, handleAuth, download, user)
 }
