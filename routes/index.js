@@ -17,6 +17,6 @@ const handleAuth = (req, res, next) => {
   })
 }
 
-module.exports = (app) => {
-  app.use('/api', login, handleAuth, download, user)
+module.exports = app => {
+  app.use('/api', user, login, handleAuth, download)
 }

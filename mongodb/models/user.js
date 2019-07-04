@@ -5,7 +5,7 @@ const userSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   name: {
     type: String,
-    default: `来自火星${mongoose.Types.ObjectId()}`
+    default: `来自火星的${mongoose.Types.ObjectId()}`
   },
   account: {
     type: String,
@@ -24,13 +24,23 @@ const userSchema = mongoose.Schema({
   },
   avator: {
     type: String
+  },
+  gender: {
+    type: Number
   }
 })
 
-userSchema.methods.joiValidate = (obj) => {
+userSchema.methods.joiValidate = obj => {
   const schema = {
-    account: Joi.string().min(4).max(18).required(),
-    password: Joi.string().min(6).max(20).regex(/[a-zA-Z0-9]{6,20}/).required()
+    account: Joi.string()
+      .min(4)
+      .max(18)
+      .required(),
+    password: Joi.string()
+      .min(6)
+      .max(20)
+      .regex(/[a-zA-Z0-9]{6,20}/)
+      .required()
   }
   return Joi.validate(obj, schema)
 }

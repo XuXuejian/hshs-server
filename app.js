@@ -12,35 +12,44 @@ const routes = require('./routes')
 const app = express()
 
 global.RESULT_CODE = {
-  "101": "用户已存在",
-  "102": "用户不存在",
-  "103": "密码不正确",
-  "004": "用户不存在",
-  "005": "系统错误",
-  "006": "用户不存在",
-  "007": "用户不存在",
-  "008": "用户不存在",
-  "009": "用户不存在",
-  "010": "用户不存在",
-  "011": "用户不存在",
-  "012": "用户不存在"
+  '101': '用户已存在',
+  '102': '用户不存在',
+  '103': '密码不正确',
+  '004': '用户不存在',
+  '005': '系统错误',
+  '006': '用户不存在',
+  '007': '用户不存在',
+  '008': '用户不存在',
+  '009': '用户不存在',
+  '010': '用户不存在',
+  '011': '用户不存在',
+  '012': '用户不存在',
+  '200': ''
 }
 
 console.log(process.env.NODE_ENV)
+const log4js = require('log4js')
+const logger = log4js.getLogger('app')
 if (process.env.NODE_ENV === 'production') {
-  const log4js = require('log4js')
   log4js.configure({
     appenders: {
-      console: { type: 'console' },
-      file: { type: 'file', filename: 'web.log' }
+      out: { type: 'console' },
+      task: {
+        type: 'dateFile',
+        filename: 'web.log',
+        pattern: '-dd.log',
+        alwaysIncludePattern: true
+      }
     },
     categories: {
-      web: { appenders: ['file'], level: 'info' },
-      default: { appenders: ['console'], level: 'info' }
+      default: { appenders: ['out', 'app'], level: 'info' }
     }
   })
-  const logger = log4js.getLogger('web')
+  app.use(log4js.connectLogger(log4js.getLogger('http'), { level: 'auto' }))
+} else {
   logger.level = 'debug'
+  logger.debug('Some debug messages')
+  app.use(log4js.connectLogger(log4js.getLogger('http'), { level: 'auto' }))
 }
 
 app.use(bodyParser.json())
@@ -106,13 +115,24 @@ app.use((req, res, next) => {
 })
 
 // error handler
-app.use((err, req, res, next) => {
-  res.status(err.status || 500)
-  res.json({
-    error: {
-      message: err.message
-    }
+if (app.get('env') === 'development') {
+  app.use((err, req, res, next) => {
+    logger.error('Something went wrong:', err)
+    res.status(err.status || 500)
+    res.json({
+      message: err.message,
+      error: err
+    })
   })
-})
+} else {
+  app.use((err, req, res, next) => {
+    logger.error('Something went wrong:', err)
+    res.status(err.status || 500)
+    res.json({
+      message: err.message,
+      error: err
+    })
+  })
+}
 
 module.exports = app
