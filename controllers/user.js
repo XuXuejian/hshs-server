@@ -1,6 +1,6 @@
 const User = require('../mongodb/models/user')
 
-exports.user_get_all = (req, res, next) => {
+exports.getUsers = (req, res, next) => {
   User.find()
     .select('-password -__v')
     .exec()
@@ -14,7 +14,7 @@ exports.user_get_all = (req, res, next) => {
     })
 }
 
-exports.user_upload_avator = (req, res, next) => {
+exports.uploadAvator = (req, res, next) => {
   User.updateOne(
     { account: req.userData.account },
     { $set: { avator: `uploads/${req.file.filename}` } }
@@ -31,7 +31,7 @@ exports.user_upload_avator = (req, res, next) => {
     })
 }
 
-exports.user_get_userInfo = (req, res, next) => {
+exports.getUserInfo = (req, res, next) => {
   const userId = req.params.userId
   User.findById(userId)
     .select('-password -__v')
@@ -50,7 +50,7 @@ exports.user_get_userInfo = (req, res, next) => {
     })
 }
 
-exports.user_delete_user = (req, res, next) => {
+exports.deleteUser = (req, res, next) => {
   const userId = req.params.userId
   User.remove({ _id: userId })
     .exec()
@@ -62,7 +62,22 @@ exports.user_delete_user = (req, res, next) => {
     })
 }
 
-exports.user_change_info = (req, res, next) => {
+exports.deleteUsers = (req, res) => {
+  const { ids, time } = req.body
+  console.log(req.body)
+  User.deleteMany({
+    $or: [{ _id: { $in: ids } }, { createTime: { $gt: time } }]
+  })
+    .exec()
+    .then(result => {
+      res.status(200).json(result)
+    })
+    .catch(error => {
+      res.status(500).json({ error })
+    })
+}
+
+exports.changeUserInfo = (req, res, next) => {
   const userId = req.params.userId
   const body = req.body
   User.updateOne({ _id: userId }, { $set: { ...body } })

@@ -12,12 +12,17 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname)
   }
 })
-const upload = multer({storage})
+const upload = multer({ storage })
 
-router.get('/user', userController.user_get_all)
-router.post('/user/upload', upload.single('avator'), userController.user_upload_avator)
-router.get('/user/:userId', userController.user_get_userInfo)
-router.delete('/user/:userId', userController.user_delete_user)
-router.put('/user/:userId', userController.user_change_info)
+router.get('/user', userController.getUsers)
+router.post(
+  '/user/upload',
+  upload.single('avator'),
+  userController.uploadAvator
+)
+router.get('/user/:userId', userController.getUserInfo)
+router.delete('/user/:userId', userController.deleteUser)
+router.put('/user/:userId', userController.changeUserInfo)
+router.delete('/user', userController.deleteUsers)
 
 module.exports = router

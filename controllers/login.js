@@ -65,15 +65,12 @@ exports.login = (req, res) => {
         error: err
       })
     } else if (!doc) {
-      res.status(500).json({
-        code: '102',
-        message: global.RESULT_CODE['102']
-      })
+      res.status(500).json(result('102'))
     } else {
       bcrypt.compare(req.body.password, doc.password, (err, result) => {
         if (!result) {
           res.status(500).json({
-            message: '密码不正确'
+            message: '账号或密码不正确'
           })
         } else {
           const token = jwt.sign(
@@ -84,7 +81,7 @@ exports.login = (req, res) => {
             'secret',
             { expiresIn: '1h' }
           )
-          req.session.user = body.account
+          // req.session.user = body.account
           res.status(200).json({
             account: doc.account,
             avator: doc.avator,
